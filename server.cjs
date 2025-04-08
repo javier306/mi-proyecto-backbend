@@ -12,19 +12,35 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Importa la configuración de secretos que incluye Firebase y Cloudinary
-const secrets = require("./secrets.json");
+// Configuración de Firebase usando variables de entorno
+const firebaseConfig = {
+  type: process.env.FIREBASE_TYPE,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  privateKeyId: process.env.FIREBASE_PRIVATE_KEY_ID,
+  // Reemplaza las secuencias literales "\n" por saltos de línea reales
+  privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  clientId: process.env.FIREBASE_CLIENT_ID,
+  authUri: process.env.FIREBASE_AUTH_URI,
+  tokenUri: process.env.FIREBASE_TOKEN_URI,
+  authProviderCertUrl: process.env.FIREBASE_AUTH_PROVIDER_CERT_URL,
+  clientCertUrl: process.env.FIREBASE_CLIENT_CERT_URL,
+  universeDomain: process.env.FIREBASE_UNIVERSE_DOMAIN
+};
 
-// Inicialización del SDK de Firebase Admin usando la configuración de secretos
 admin.initializeApp({
-  credential: admin.credential.cert(secrets.firebase),
-  databaseURL: "https://red-social-viajes2.firebaseio.com"
+  credential: admin.credential.cert(firebaseConfig),
+  databaseURL: process.env.FIREBASE_DATABASE_URL || "https://red-social-viajes2.firebaseio.com"
 });
 
 const db = admin.firestore();
 
-// Configuración de Cloudinary usando la configuración de secretos
-cloudinary.config(secrets.cloudinary);
+// Configuración de Cloudinary usando variables de entorno
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // ========================================================
 // Endpoint: Enviar solicitud de amistad (por username)
