@@ -12,23 +12,19 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Importa el archivo de credenciales
-const serviceAccount = require("./red-social-viajes2-firebase-adminsdk-fbsvc-35fd2ed4ae.json");
+// Importa la configuración de secretos que incluye Firebase y Cloudinary
+const secrets = require("./secrets.json");
 
-// Inicialización del SDK de Firebase Admin
+// Inicialización del SDK de Firebase Admin usando la configuración de secretos
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://red-social-viajes2.firebaseio.com",
+  credential: admin.credential.cert(secrets.firebase),
+  databaseURL: "https://red-social-viajes2.firebaseio.com"
 });
 
 const db = admin.firestore();
 
-// Configuración de Cloudinary
-cloudinary.config({
-  cloud_name: "dwq7tkjng",
-  api_key: "989747438324298",
-  api_secret: "_Bjc7xpAn2rof5o0t0zg-NNWHLM",
-});
+// Configuración de Cloudinary usando la configuración de secretos
+cloudinary.config(secrets.cloudinary);
 
 // ========================================================
 // Endpoint: Enviar solicitud de amistad (por username)
@@ -177,10 +173,10 @@ app.post("/api/handle-friend-request", async (req, res) => {
 
       // Añadir cada usuario a la lista de amigos del otro
       await senderRef.update({
-        friends: admin.firestore.FieldValue.arrayUnion(receiverId),
+        friends: admin.firestore.FieldValue.arrayUnion(receiverId)
       });
       await receiverRef.update({
-        friends: admin.firestore.FieldValue.arrayUnion(senderId),
+        friends: admin.firestore.FieldValue.arrayUnion(senderId)
       });
 
       // Eliminar la solicitud ya procesada
